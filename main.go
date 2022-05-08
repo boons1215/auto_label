@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
@@ -18,6 +19,17 @@ import (
 var client *http.Client
 
 func main() {
+	// flags
+	var file string
+	flag.StringVar(&file, "f", "", "import the csv file")
+	flag.Parse()
+
+	if len(file) == 0 {
+		fmt.Println("Usage: auto-label -f data.csv")
+		flag.PrintDefaults()
+		os.Exit(1)
+	}
+
 	config, err := util.LoadConfig(".")
 	if err != nil {
 		log.Fatal("cannot load config: ", err)
@@ -28,7 +40,7 @@ func main() {
 		id       = config.OrgId
 		user     = config.ApiUser
 		key      = config.ApiKey
-		report   = os.Args[1] // tmp -f flags import
+		report   = os.Args[2]
 		fixedLoc = config.FixedLocLabel
 		ready    = false
 		async    = false

@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/boons1215/auto-label/helper"
+	"github.com/boons1215/auto-label/util"
 	"github.com/boons1215/auto-label/ven"
 )
 
@@ -53,7 +54,7 @@ func ConsolidateCsv(data [][]string) {
 		_ = csvWriter.Write(row)
 	}
 
-	fmt.Printf("* CSV report generated: %s", outputFileName)
+	fmt.Println(string(util.ColorGreen), "* CSV report generated: ", outputFileName, string(util.ColorReset))
 	fmt.Println()
 	fmt.Println()
 	csvWriter.Flush()

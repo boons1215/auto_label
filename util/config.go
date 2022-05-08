@@ -19,6 +19,14 @@ type Config struct {
 	FixedLocLabel string `mapstructure:"LOC_LABEL"`
 }
 
+const (
+	ColorRed    = "\u001b[31m"
+	ColorGreen  = "\u001b[32m"
+	ColorYellow = "\u001b[33m"
+	ColorBlue   = "\u001b[34m"
+	ColorReset  = "\u001b[0m"
+)
+
 // ingest config parameter from the config.env file
 func LoadConfig(path string) (config Config, err error) {
 	viper.AddConfigPath(path)
