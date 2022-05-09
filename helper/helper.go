@@ -52,6 +52,7 @@ func GetJson(pce, orgId, path, method, apiUser, apiKey string, client *http.Clie
 		fmt.Printf("Error in url: %s\n", err.Error())
 	}
 
+	req.Header.Set("User-Agent", "Mozilla/5.0")
 	if async {
 		req.Header.Set("Prefer", "respond-async")
 	}
@@ -81,6 +82,7 @@ func GetJson(pce, orgId, path, method, apiUser, apiKey string, client *http.Clie
 		fmt.Println("> async datafile: ", finalReq.URL)
 
 		finalReq.SetBasicAuth(apiUser, apiKey)
+		finalReq.Header.Set("User-Agent", "Mozilla/5.0")
 		finalReq.Header.Set("Content-Type", "application/json")
 
 		resp, err = client.Do(finalReq)
@@ -114,6 +116,7 @@ func polling(url, apiUser, apiKey string, resp *http.Response) (asyncResults, er
 	// Set basic authentication and headers
 	pollReq.SetBasicAuth(apiUser, apiKey)
 	pollReq.Header.Set("Content-Type", "application/json")
+	pollReq.Header.Set("User-Agent", "Mozilla/5.0")
 
 	// Wait for recommended time from Retry-After
 	wait, err := strconv.Atoi(resp.Header.Get("Retry-After"))
@@ -145,6 +148,7 @@ func polling(url, apiUser, apiKey string, resp *http.Response) (asyncResults, er
 func UpdateJson(url, method, apiUser, apiKey string, body []byte, client *http.Client) (*http.Response, []byte, error) {
 	req, err = http.NewRequest(method, url, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("User-Agent", "Mozilla/5.0")
 	req.SetBasicAuth(apiUser, apiKey)
 
 	resp, err := client.Do(req)

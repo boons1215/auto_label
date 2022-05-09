@@ -41,7 +41,7 @@ func GetAllLabels(pce, orgId, apiUser, apiKey string, client *http.Client, async
 	fmt.Println()
 
 	// refetch if the return data is more than 500 from PCE
-	if len(label) == 500 {
+	if len(label) >= 500 {
 		red.Println("Returned labels data from PCE is more than 500, fetching with async query...")
 		err := helper.GetJson(pce, orgId, path, "GET", apiUser, apiKey, client, &label, true)
 		if err != nil {
@@ -72,7 +72,7 @@ func UniqueSlice(input []string) []string {
 }
 
 // return true when value not find in the target slice
-func Contains(target []Label, str, ltype string) bool {
+func contains(target []Label, str, ltype string) bool {
 	for _, v := range target {
 		if v.Key == ltype && v.Value == str {
 			return false
@@ -88,7 +88,7 @@ func UniqueLabel(labelSet []string, pceLabelSet []Label, labelType string) []str
 
 	for _, value := range labelSet {
 		if value != "" {
-			t := Contains(pceLabelSet, value, labelType)
+			t := contains(pceLabelSet, value, labelType)
 			if t {
 				newLabel = append(newLabel, value)
 			}

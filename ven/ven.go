@@ -40,6 +40,17 @@ func GetNewVen(pce, orgId, apiUser, apiKey string, client *http.Client, wg *sync
 	}
 
 	fmt.Println("* HTTP JSON URL:", url+path)
+
+	if len(newVen) >= 500 {
+		red.Println("- Returned the filtered VEN data from PCE is more than 500, fetching with async query...")
+		err := helper.GetJson(pce, orgId, path, "GET", apiUser, apiKey, client, &newVen, true)
+		if err != nil {
+			red.Printf("error getting ven data from pce: %s\n", err.Error())
+			return nil
+		}
+	}
+
+	fmt.Println()
 	green.Println("- Discovered new VENs on PCE without APP|ENV|LOC labels: ", len(newVen))
 
 	for _, v := range newVen {

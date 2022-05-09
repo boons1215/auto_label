@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/boons1215/auto-label/helper"
+	"github.com/boons1215/auto-label/util"
 	"github.com/boons1215/auto-label/ven"
 	"github.com/fatih/color"
 )
@@ -16,12 +17,6 @@ import (
 var (
 	green = color.New(color.FgHiGreen)
 )
-
-// remove fqdn from the hostname such as hostname.abc.com, and uppercase while comparing
-func normalise(str string) string {
-	res := strings.Split(str, ".")
-	return strings.ToUpper(res[0])
-}
 
 // process the input and prepare data in csv format
 func PrepareCsvData(newVen []ven.Ven, raw []helper.Workload, fixedLoc string) [][]string {
@@ -32,10 +27,10 @@ func PrepareCsvData(newVen []ven.Ven, raw []helper.Workload, fixedLoc string) []
 	for i := 0; i < len(newVen); i++ {
 		ven := &newVen[i]
 		for _, r := range raw {
-			if normalise(ven.Hostname) == normalise(r.Hostname) {
+			if util.Normalise(ven.Hostname) == util.Normalise(r.Hostname) {
 				ven.App = r.App
-				ven.Env = r.Env
-				ven.Loc = fixedLoc
+				ven.Env = strings.ToUpper(r.Env)
+				ven.Loc = strings.ToUpper(fixedLoc)
 				if ven.Env == "PROD" {
 					ven.Env = strings.Replace(ven.Env, "PROD", "PRODUCTION", -1)
 				}

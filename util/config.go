@@ -59,3 +59,9 @@ func ShallProceed(s string) bool {
 		}
 	}
 }
+
+// remove fqdn from the hostname such as hostname.abc.com, and uppercase while comparing
+func Normalise(str string) string {
+	res := strings.Split(str, ".")
+	return strings.ToUpper(res[0])
+}
