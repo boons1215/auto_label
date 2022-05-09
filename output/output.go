@@ -9,9 +9,19 @@ import (
 	"time"
 
 	"github.com/boons1215/auto-label/helper"
-	"github.com/boons1215/auto-label/util"
 	"github.com/boons1215/auto-label/ven"
+	"github.com/fatih/color"
 )
+
+var (
+	green = color.New(color.FgHiGreen)
+)
+
+// remove fqdn from the hostname such as hostname.abc.com, and uppercase while comparing
+func normalise(str string) string {
+	res := strings.Split(str, ".")
+	return strings.ToUpper(res[0])
+}
 
 // process the input and prepare data in csv format
 func PrepareCsvData(newVen []ven.Ven, raw []helper.Workload, fixedLoc string) [][]string {
@@ -22,7 +32,7 @@ func PrepareCsvData(newVen []ven.Ven, raw []helper.Workload, fixedLoc string) []
 	for i := 0; i < len(newVen); i++ {
 		ven := &newVen[i]
 		for _, r := range raw {
-			if ven.Hostname == r.Hostname {
+			if normalise(ven.Hostname) == normalise(r.Hostname) {
 				ven.App = r.App
 				ven.Env = r.Env
 				ven.Loc = fixedLoc
@@ -54,7 +64,7 @@ func ConsolidateCsv(data [][]string) {
 		_ = csvWriter.Write(row)
 	}
 
-	fmt.Println(string(util.ColorGreen), "* CSV report generated: ", outputFileName, string(util.ColorReset))
+	green.Println("* CSV report generated: ", outputFileName)
 	fmt.Println()
 	fmt.Println()
 	csvWriter.Flush()

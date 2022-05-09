@@ -6,7 +6,7 @@ import (
 	"sync"
 
 	"github.com/boons1215/auto-label/helper"
-	"github.com/boons1215/auto-label/util"
+	"github.com/fatih/color"
 )
 
 type Ven struct {
@@ -16,6 +16,11 @@ type Ven struct {
 	Env      string
 	Loc      string
 }
+
+var (
+	red   = color.New(color.FgHiRed)
+	green = color.New(color.FgHiGreen)
+)
 
 // retrieve all new ven without app/env/loc labels
 func GetNewVen(pce, orgId, apiUser, apiKey string, client *http.Client, wg *sync.WaitGroup, async bool) []Ven {
@@ -30,12 +35,12 @@ func GetNewVen(pce, orgId, apiUser, apiKey string, client *http.Client, wg *sync
 
 	err := helper.GetJson(pce, orgId, path, "GET", apiUser, apiKey, client, &newVen, async)
 	if err != nil {
-		fmt.Printf("error getting ven data from pce: %s\n", err.Error())
+		red.Printf("error getting ven data from pce: %s\n", err.Error())
 		return nil
 	}
 
 	fmt.Println("* HTTP JSON URL:", url+path)
-	fmt.Println(string(util.ColorBlue), "- Discovered new VENs on PCE without APP|ENV|LOC labels: ", len(newVen), string(util.ColorReset))
+	green.Println("- Discovered new VENs on PCE without APP|ENV|LOC labels: ", len(newVen))
 
 	for _, v := range newVen {
 		fmt.Printf("	- %s : %s\n", v.Hostname, v.Href)
@@ -71,8 +76,8 @@ func UpdateVenLabel(pce, orgId, apiUser, apiKey string, client *http.Client, ven
 		if resp.StatusCode == http.StatusOK {
 			fmt.Println("Response: ", resp.StatusCode)
 		} else {
-			fmt.Println(string(util.ColorRed), "Failed with error: ", resp.Status, string(util.ColorReset))
-			fmt.Println(string(util.ColorRed), "Verify this VEN is in the excelsheet or missing labels info in the excelsheet", string(util.ColorReset))
+			red.Println("Failed with error: ", resp.Status)
+			red.Println("Verify this VEN is in the excelsheet or missing labels info in the excelsheet")
 		}
 	}
 }

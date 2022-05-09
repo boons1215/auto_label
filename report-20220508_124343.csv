@@ -1,4 +1,0 @@
-href,hostname,app,env,loc
-/orgs/1/workloads/418ed7df-5d3d-462c-8bdc-09d1c1a0c6ab,worker-node1,,,
-/orgs/1/workloads/75c1d1dd-0939-461b-9a6c-df27d6ce7621,worker-node2,,,
-/orgs/1/workloads/f0293c94-ec32-47f1-978e-aaca84e63de8,master-node,,,

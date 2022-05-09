@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/boons1215/auto-label/helper"
-	"github.com/boons1215/auto-label/util"
+	"github.com/fatih/color"
 )
 
 type Label struct {
@@ -19,6 +19,11 @@ type LabelBody struct {
 	Key   string `json:"key"`
 	Value string `json:"value"`
 }
+
+var (
+	red   = color.New(color.FgHiRed)
+	green = color.New(color.FgHiGreen)
+)
 
 // retrieve all the existing labels
 func GetAllLabels(pce, orgId, apiUser, apiKey string, client *http.Client, async bool) []Label {
@@ -37,7 +42,7 @@ func GetAllLabels(pce, orgId, apiUser, apiKey string, client *http.Client, async
 
 	// refetch if the return data is more than 500 from PCE
 	if len(label) == 500 {
-		fmt.Println(string(util.ColorBlue), "Returned labels data from PCE is more than 500, fetching with async query...", string(util.ColorReset))
+		red.Println("Returned labels data from PCE is more than 500, fetching with async query...")
 		err := helper.GetJson(pce, orgId, path, "GET", apiUser, apiKey, client, &label, true)
 		if err != nil {
 			fmt.Printf("error getting label data from pce: %s\n", err.Error())
@@ -46,7 +51,7 @@ func GetAllLabels(pce, orgId, apiUser, apiKey string, client *http.Client, async
 	}
 
 	fmt.Println("* HTTP JSON URL:", baseURL+path)
-	fmt.Println(string(util.ColorBlue), "- Retrieved total number of labels from PCE: ", len(label), string(util.ColorReset))
+	green.Println("- Retrieved total number of labels from PCE: ", len(label))
 	fmt.Println()
 	return label
 }
@@ -100,7 +105,7 @@ func CreateNewLabels(pce, orgId, apiUser, apiKey, labelType string, labelSet []s
 	fmt.Println("* HTTP JSON URL:", url)
 
 	if len(labelSet) != 0 {
-		fmt.Println(string(util.ColorBlue), "Creating new labels for type: ", labelType, string(util.ColorReset))
+		green.Println("Creating new labels for type: ", labelType)
 
 		for _, value := range labelSet {
 			newLabel := LabelBody{
@@ -118,7 +123,7 @@ func CreateNewLabels(pce, orgId, apiUser, apiKey, labelType string, labelSet []s
 			if resp.StatusCode == http.StatusCreated {
 				fmt.Println("Response: ", string(respBody))
 			} else {
-				fmt.Println(string(util.ColorRed), "Failed with error: ", resp.Status, string(util.ColorReset))
+				red.Println("Failed with error: ", resp.Status)
 			}
 		}
 	} else {

@@ -16,8 +16,6 @@ import (
 	"github.com/boons1215/auto-label/ven"
 )
 
-var client *http.Client
-
 func main() {
 	// flags
 	var file string
@@ -36,6 +34,7 @@ func main() {
 	}
 
 	var (
+		client   *http.Client
 		pce      = config.PCE
 		id       = config.OrgId
 		user     = config.ApiUser

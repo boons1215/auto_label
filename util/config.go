@@ -19,12 +19,8 @@ type Config struct {
 	FixedLocLabel string `mapstructure:"LOC_LABEL"`
 }
 
-const (
-	ColorRed    = "\u001b[31m"
-	ColorGreen  = "\u001b[32m"
-	ColorYellow = "\u001b[33m"
-	ColorBlue   = "\u001b[34m"
-	ColorReset  = "\u001b[0m"
+var (
+	red = color.New(color.FgHiRed)
 )
 
 // ingest config parameter from the config.env file
@@ -45,11 +41,9 @@ func LoadConfig(path string) (config Config, err error) {
 // ask for the user for confirmation before proceed for the next
 func ShallProceed(s string) bool {
 	reader := bufio.NewReader(os.Stdin)
-	red := color.New(color.FgRed)
-	boldRed := red.Add(color.Bold)
 
 	for {
-		boldRed.Printf("%s [y/n]: ", s)
+		red.Printf("%s [y/n]: ", s)
 
 		resp, err := reader.ReadString('\n')
 		if err != nil {
