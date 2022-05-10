@@ -19,10 +19,18 @@ var (
 )
 
 // process the input and prepare data in csv format
-func PrepareCsvData(newVen []ven.Ven, raw []helper.Workload, fixedLoc string) [][]string {
-	data := [][]string{
+func PrepareCsvData(newVen []ven.Ven, raw []helper.Workload, fixedLoc string) ([][]string, [][]string) {
+	// ven find in the csv record
+	recordExistData := [][]string{
 		{"href", "hostname", "app", "env", "loc"},
 	}
+
+	// ven not found in the csv record
+	recordNotFound := [][]string{
+		{"href", "hostname", "app", "env", "loc"},
+	}
+
+	var inRecord string
 
 	for i := 0; i < len(newVen); i++ {
 		ven := &newVen[i]
@@ -34,20 +42,28 @@ func PrepareCsvData(newVen []ven.Ven, raw []helper.Workload, fixedLoc string) []
 				if ven.Env == "PROD" {
 					ven.Env = strings.Replace(ven.Env, "PROD", "PRODUCTION", -1)
 				}
+				adata := [][]string{
+					{ven.Href, ven.Hostname, ven.App, ven.Env, ven.Loc},
+				}
+				recordExistData = append(recordExistData, adata...)
+				inRecord = ven.Hostname
 			}
 		}
-		adata := [][]string{
-			{ven.Href, ven.Hostname, ven.App, ven.Env, ven.Loc},
+
+		if newVen[i].Hostname != inRecord {
+			ndata := [][]string{
+				{ven.Href, ven.Hostname},
+			}
+			recordNotFound = append(recordNotFound, ndata...)
 		}
-		data = append(data, adata...)
 	}
 
-	return data
+	return recordExistData, recordNotFound
 }
 
 // process the csv data and generate csv report
-func ConsolidateCsv(data [][]string) {
-	outputFileName := fmt.Sprintf("report-%s.csv", time.Now().Format("20060102_150405"))
+func ConsolidateCsv(recordExistData [][]string, reportName string) {
+	outputFileName := fmt.Sprintf("%s_ven-report-%s.csv", reportName, time.Now().Format("20060102_150405"))
 	csvFile, err := os.Create(outputFileName)
 	if err != nil {
 		log.Fatalf("failed creating file: %s", err)
@@ -55,13 +71,11 @@ func ConsolidateCsv(data [][]string) {
 
 	csvWriter := csv.NewWriter(csvFile)
 
-	for _, row := range data {
+	for _, row := range recordExistData {
 		_ = csvWriter.Write(row)
 	}
 
 	green.Println("* CSV report generated: ", outputFileName)
-	fmt.Println()
-	fmt.Println()
 	csvWriter.Flush()
 	csvFile.Close()
 }

@@ -62,8 +62,9 @@ func main() {
 	pceLabelInfo := label.GetAllLabels(pce, id, user, key, client, async)
 
 	// prepare a csv draft report for user
-	data := output.PrepareCsvData(newVen, raw, fixedLoc)
-	output.ConsolidateCsv(data)
+	recordExistData, recordNotFound := output.PrepareCsvData(newVen, raw, fixedLoc)
+	output.ConsolidateCsv(recordExistData, "recordExist")
+	output.ConsolidateCsv(recordNotFound, "recordNotFound")
 
 	// yes or no for next steps
 	fmt.Println()
@@ -74,7 +75,7 @@ func main() {
 		appRawLabel := []string{}
 		envRawLabel := []string{}
 
-		for _, v := range data[1:] {
+		for _, v := range recordExistData[1:] {
 			appRawLabel = append(appRawLabel, v[2])
 			envRawLabel = append(envRawLabel, v[3])
 		}
@@ -112,12 +113,26 @@ func main() {
 			ready = true
 		}
 
-		// ready for labelling new VEN
+		// filter VENs that not listed in the csv record as a new 2D slice
+		updatedVENList := [][]string{}
+
+		for j := range newVen {
+			ven := &newVen[j]
+			for i := range recordExistData {
+				if util.Normalise(ven.Hostname) == util.Normalise(recordExistData[i][1]) {
+					row := []string{ven.Href, ven.Hostname, ven.App, ven.Env, ven.Loc}
+					updatedVENList = append(updatedVENList, row)
+				}
+			}
+		}
+
+		// labelling stage
 		if ready {
 			fmt.Println()
 			confirm = util.ShallProceed("Ready for labelling new VENs?")
 
 			if confirm {
+				// collect label href
 				collector := make(map[string]string)
 
 				label.MapLabelHref(collector, appLabelAsPerReport, pceLabelInfo, "app")
@@ -125,20 +140,19 @@ func main() {
 
 				// location label is fixed as "SGP"
 				for _, v := range pceLabelInfo {
-					if v.Value == "SGP" && v.Key == "loc" {
+					if v.Value == fixedLoc && v.Key == "loc" {
 						collector[v.Value] = v.Href
 					}
 				}
 
-				// map the href to the workloads
-				for i := range newVen {
-					n := &newVen[i]
-					n.App = collector[n.App]
-					n.Env = collector[n.Env]
-					n.Loc = collector[n.Loc]
+				// map the app/env/loc label href to the workloads
+				for i := range updatedVENList {
+					updatedVENList[i][2] = collector[updatedVENList[i][2]]
+					updatedVENList[i][3] = collector[updatedVENList[i][3]]
+					updatedVENList[i][4] = collector[updatedVENList[i][4]]
 				}
 
-				ven.UpdateVenLabel(pce, id, user, key, client, newVen)
+				ven.UpdateVenLabel(pce, id, user, key, client, updatedVENList)
 			}
 		}
 

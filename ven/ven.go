@@ -62,21 +62,21 @@ func GetNewVen(pce, orgId, apiUser, apiKey string, client *http.Client, wg *sync
 }
 
 // update ven label based on csv input
-func UpdateVenLabel(pce, orgId, apiUser, apiKey string, client *http.Client, venInfo []Ven) {
+func UpdateVenLabel(pce, orgId, apiUser, apiKey string, client *http.Client, venInfo [][]string) {
 	baseUrl := pce + "/api/v2/orgs/" + orgId + "/workloads/set_labels"
 	fmt.Println()
 
 	fmt.Println(baseUrl)
 	for i := range venInfo {
-		param := "{\"workloads\": [{\"href\": \"" + venInfo[i].Href + "\"}],"
+		param := "{\"workloads\": [{\"href\": \"" + venInfo[i][0] + "\"}],"
 		param += "\"labels\": ["
-		param += "{\"href\": \"" + venInfo[i].App + "\"},"
-		param += "{\"href\": \"" + venInfo[i].Env + "\"},"
-		param += "{\"href\": \"" + venInfo[i].Loc + "\"}],"
+		param += "{\"href\": \"" + venInfo[i][2] + "\"},"
+		param += "{\"href\": \"" + venInfo[i][3] + "\"},"
+		param += "{\"href\": \"" + venInfo[i][4] + "\"}],"
 		param += "\"delete_existing_keys\": []}"
 
 		body := []byte(param)
-		fmt.Println("> ", venInfo[i].Hostname, venInfo[i].Href)
+		fmt.Println("> ", venInfo[i][1], venInfo[i][0])
 
 		resp, _, err := helper.UpdateJson(baseUrl, "PUT", apiUser, apiKey, body, client)
 		if err != nil {
