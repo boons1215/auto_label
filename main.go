@@ -46,7 +46,7 @@ func main() {
 	)
 
 	client = &http.Client{
-		Timeout: 10 * time.Second,
+		Timeout: 600 * time.Second,
 	}
 
 	var wg sync.WaitGroup
@@ -58,11 +58,14 @@ func main() {
 	newVen := ven.GetNewVen(pce, id, user, key, client, &wg, async)
 	wg.Wait()
 
+	fmt.Println("Total VEN discovered: ", len(newVen))
+
 	// retrieve the existing defined labels from PCE
 	pceLabelInfo := label.GetAllLabels(pce, id, user, key, client, async)
 
 	// prepare a csv draft report for user
 	recordExistData, recordNotFound := output.PrepareCsvData(newVen, raw, fixedLoc)
+
 	output.ConsolidateCsv(recordExistData, "recordExist")
 	output.ConsolidateCsv(recordNotFound, "recordNotFound")
 

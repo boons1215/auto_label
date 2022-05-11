@@ -29,6 +29,7 @@ func GetNewVen(pce, orgId, apiUser, apiKey string, client *http.Client, wg *sync
 	url := pce + "/api/v2/orgs/" + orgId
 	path := "/workloads?"
 	path += "representation=workload_labels&managed=true&"
+	//path += "representation=workload_labels&"
 	path += "labels=[[\"/orgs/" + orgId + "/labels?key=app%26exists=false\",\"/orgs/" + orgId + "/labels?key=loc%26exists=false\",\"/orgs/" + orgId + "/labels?key=env%26exists=false\"]]"
 
 	var newVen []Ven
@@ -63,32 +64,31 @@ func GetNewVen(pce, orgId, apiUser, apiKey string, client *http.Client, wg *sync
 
 // update ven label based on csv input
 func UpdateVenLabel(pce, orgId, apiUser, apiKey string, client *http.Client, venInfo [][]string) {
-	baseUrl := pce + "/api/v2/orgs/" + orgId + "/workloads/set_labels"
+	baseUrl := pce + "/api/v2/orgs/" + orgId + "/workloads/bulk_update"
 	fmt.Println()
 
+	var param string
 	fmt.Println(baseUrl)
 	for i := range venInfo {
-		param := "{\"workloads\": [{\"href\": \"" + venInfo[i][0] + "\"}],"
+		param += "{\"href\": \"" + venInfo[i][0] + "\","
 		param += "\"labels\": ["
 		param += "{\"href\": \"" + venInfo[i][2] + "\"},"
 		param += "{\"href\": \"" + venInfo[i][3] + "\"},"
-		param += "{\"href\": \"" + venInfo[i][4] + "\"}],"
-		param += "\"delete_existing_keys\": []}"
+		param += "{\"href\": \"" + venInfo[i][4] + "\"}]},"
+	}
+	body := []byte("[" + param + "{}]")
 
-		body := []byte(param)
-		fmt.Println("> ", venInfo[i][1], venInfo[i][0])
+	fmt.Println("Labelling total VENs: ", len(venInfo))
+	resp, _, err := helper.UpdateJson(baseUrl, "PUT", apiUser, apiKey, body, client)
+	if err != nil {
+		fmt.Printf("Error getting data from pce: %s\n", err.Error())
+		return
+	}
 
-		resp, _, err := helper.UpdateJson(baseUrl, "PUT", apiUser, apiKey, body, client)
-		if err != nil {
-			fmt.Printf("Error getting data from pce: %s\n", err.Error())
-			return
-		}
-
-		if resp.StatusCode == http.StatusOK {
-			fmt.Println("Response: ", resp.StatusCode)
-		} else {
-			red.Println("Failed with error: ", resp.Status)
-			red.Println("Verify this VEN is in the excelsheet or missing labels info in the excelsheet")
-		}
+	if resp.StatusCode == http.StatusOK {
+		fmt.Println("Completed! -> Response: ", resp.StatusCode)
+	} else {
+		red.Println("Failed with error: ", resp.Status)
+		red.Println("Verify this VEN is in the excelsheet or missing labels info in the excelsheet")
 	}
 }
