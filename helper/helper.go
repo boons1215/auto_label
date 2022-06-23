@@ -19,6 +19,7 @@ type Workload struct {
 	Hostname string `csv:"HOSTNAME"`
 	App      string `csv:"APPLICATION_CODE"`
 	Env      string `csv:"ENVIRONMENT"`
+	Category string `csv:"APPLICATION_CATEGORY"`
 }
 
 // Unexported struct for handling the asyncResults

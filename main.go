@@ -159,6 +159,28 @@ func main() {
 			}
 		}
 
+		// enforce the ven based on condition:
+		// UAT env - direct enforce
+		// PROD env - check application_category, only enforce cat 3/4
+		fmt.Println()
+		confirm = util.ShallProceed("Ready for enforcing the VENs?")
+
+		if confirm {
+			envLabelHref := make(map[string]string)
+
+			for i := range pceLabelInfo {
+				if pceLabelInfo[i].Key == "env" && pceLabelInfo[i].Value == "UAT" {
+					envLabelHref[pceLabelInfo[i].Value] = pceLabelInfo[i].Href
+				}
+
+				if pceLabelInfo[i].Key == "env" && pceLabelInfo[i].Value == "PRODUCTION" {
+					envLabelHref[pceLabelInfo[i].Value] = pceLabelInfo[i].Href
+				}
+			}
+
+			ven.EnforceVen(pce, id, user, key, client, updatedVENList, recordExistData, envLabelHref)
+		}
+
 		return
 	}
 }

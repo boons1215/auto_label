@@ -22,12 +22,12 @@ var (
 func PrepareCsvData(newVen []ven.Ven, raw []helper.Workload, fixedLoc string) ([][]string, [][]string) {
 	// ven find in the csv record
 	recordExistData := [][]string{
-		{"href", "hostname", "app", "env", "loc"},
+		{"href", "hostname", "app", "env", "loc", "category"},
 	}
 
 	// ven not found in the csv record
 	recordNotFound := [][]string{
-		{"href", "hostname", "app", "env", "loc"},
+		{"href", "hostname", "app", "env", "loc", "category"},
 	}
 
 	var inRecord string
@@ -39,11 +39,12 @@ func PrepareCsvData(newVen []ven.Ven, raw []helper.Workload, fixedLoc string) ([
 				ven.App = r.App
 				ven.Env = strings.ToUpper(r.Env)
 				ven.Loc = strings.ToUpper(fixedLoc)
+				ven.Category = r.Category
 				if ven.Env == "PROD" {
 					ven.Env = strings.Replace(ven.Env, "PROD", "PRODUCTION", -1)
 				}
 				adata := [][]string{
-					{ven.Href, ven.Hostname, ven.App, ven.Env, ven.Loc},
+					{ven.Href, ven.Hostname, ven.App, ven.Env, ven.Loc, ven.Category},
 				}
 				recordExistData = append(recordExistData, adata...)
 				inRecord = ven.Hostname
