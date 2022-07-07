@@ -34,15 +34,14 @@ func main() {
 	}
 
 	var (
-		client   *http.Client
-		pce      = config.PCE
-		id       = config.OrgId
-		user     = config.ApiUser
-		key      = config.ApiKey
-		report   = os.Args[2]
-		fixedLoc = config.FixedLocLabel
-		ready    = false
-		async    = false
+		client *http.Client
+		pce    = config.PCE
+		id     = config.OrgId
+		user   = config.ApiUser
+		key    = config.ApiKey
+		report = os.Args[2]
+		ready  = false
+		async  = false
 	)
 
 	client = &http.Client{
@@ -64,7 +63,7 @@ func main() {
 	pceLabelInfo := label.GetAllLabels(pce, id, user, key, client, async)
 
 	// prepare a csv draft report for user
-	recordExistData, recordNotFound := output.PrepareCsvData(newVen, raw, fixedLoc)
+	recordExistData, recordNotFound := output.PrepareCsvData(newVen, raw)
 
 	output.ConsolidateCsv(recordExistData, "recordExist")
 	output.ConsolidateCsv(recordNotFound, "recordNotFound")
@@ -169,17 +168,13 @@ func main() {
 		// UAT env - direct enforce
 		// PROD env - check application_category, only enforce cat 3/4
 		fmt.Println()
-		confirm = util.ShallProceed("Ready for enforcing the Cat3/4 PROD and UAT VENs?")
+		confirm = util.ShallProceed("Ready for enforcing the Cat3/4 PROD, SIT, DEV, UAT VENs?")
 
 		if confirm {
 			envLabelHref := make(map[string]string)
 
 			for i := range pceLabelInfo {
-				if pceLabelInfo[i].Key == "env" && pceLabelInfo[i].Value == "UAT" {
-					envLabelHref[pceLabelInfo[i].Value] = pceLabelInfo[i].Href
-				}
-
-				if pceLabelInfo[i].Key == "env" && pceLabelInfo[i].Value == "PRODUCTION" {
+				if pceLabelInfo[i].Key == "env" && (pceLabelInfo[i].Value == "UAT" || pceLabelInfo[i].Value == "SIT" || pceLabelInfo[i].Value == "DEV" || pceLabelInfo[i].Value == "PRODUCTION") {
 					envLabelHref[pceLabelInfo[i].Value] = pceLabelInfo[i].Href
 				}
 			}
@@ -190,5 +185,3 @@ func main() {
 		return
 	}
 }
-
-// Singapore - UAT change from SGP

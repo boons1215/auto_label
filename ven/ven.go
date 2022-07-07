@@ -94,7 +94,7 @@ func UpdateVenLabel(pce, orgId, apiUser, apiKey string, client *http.Client, ven
 	}
 }
 
-// enforce VEN, UAT env - direct enforce; PROD env - check application_category, only enforce cat 3/4
+// enforce VEN, UAT, SIT, DEV env - direct enforce; PROD env - check application_category, only enforce cat 3/4
 func EnforceVen(pce, orgId, apiUser, apiKey string, client *http.Client, updatedVENList, recordExistData [][]string, envLabelHref map[string]string) {
 	baseUrl := pce + "/api/v2/orgs/" + orgId + "/workloads/update"
 	fmt.Println()
@@ -115,6 +115,14 @@ func EnforceVen(pce, orgId, apiUser, apiKey string, client *http.Client, updated
 	// retrieve UAT and PRODUCTION env label href
 	for i := range updatedVENList {
 		if updatedVENList[i][3] == envLabelHref["UAT"] {
+			venHref = append(venHref, updatedVENList[i][0])
+		}
+
+		if updatedVENList[i][3] == envLabelHref["DEV"] {
+			venHref = append(venHref, updatedVENList[i][0])
+		}
+
+		if updatedVENList[i][3] == envLabelHref["SIT"] {
 			venHref = append(venHref, updatedVENList[i][0])
 		}
 	}

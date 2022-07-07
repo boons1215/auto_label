@@ -19,7 +19,7 @@ var (
 )
 
 // process the input and prepare data in csv format
-func PrepareCsvData(newVen []ven.Ven, raw []helper.Workload, fixedLoc string) ([][]string, [][]string) {
+func PrepareCsvData(newVen []ven.Ven, raw []helper.Workload) ([][]string, [][]string) {
 	// ven find in the csv record
 	recordExistData := [][]string{
 		{"href", "hostname", "app", "env", "loc", "category"},
@@ -38,7 +38,13 @@ func PrepareCsvData(newVen []ven.Ven, raw []helper.Workload, fixedLoc string) ([
 			if util.Normalise(ven.Hostname) == util.Normalise(r.Hostname) {
 				ven.App = r.App
 				ven.Env = strings.ToUpper(r.Env)
-				ven.Loc = strings.ToUpper(fixedLoc)
+
+				if r.Env == "UAT" {
+					ven.Loc = strings.ToUpper("Singapore")
+				} else {
+					ven.Loc = strings.ToUpper("SGP")
+				}
+
 				ven.Category = r.Category
 				if ven.Env == "PROD" {
 					ven.Env = strings.Replace(ven.Env, "PROD", "PRODUCTION", -1)
