@@ -143,16 +143,22 @@ func main() {
 
 				// location label is fixed as "SGP"
 				for _, v := range pceLabelInfo {
-					if v.Value == fixedLoc && v.Key == "loc" {
+					if (v.Value == "SGP" || v.Value == "Singapore") && v.Key == "loc" {
 						collector[v.Value] = v.Href
 					}
 				}
 
 				// map the app/env/loc label href to the workloads
+				// if env is UAT, the loc always "Singapore". Otherwise, it is "SGP"
 				for i := range updatedVENList {
 					updatedVENList[i][2] = collector[updatedVENList[i][2]]
 					updatedVENList[i][3] = collector[updatedVENList[i][3]]
-					updatedVENList[i][4] = collector[updatedVENList[i][4]]
+
+					if updatedVENList[i][3] == collector["UAT"] {
+						updatedVENList[i][4] = collector["Singapore"]
+					} else {
+						updatedVENList[i][4] = collector["SGP"]
+					}
 				}
 
 				ven.UpdateVenLabel(pce, id, user, key, client, updatedVENList)
@@ -163,7 +169,7 @@ func main() {
 		// UAT env - direct enforce
 		// PROD env - check application_category, only enforce cat 3/4
 		fmt.Println()
-		confirm = util.ShallProceed("Ready for enforcing the VENs?")
+		confirm = util.ShallProceed("Ready for enforcing the Cat3/4 PROD and UAT VENs?")
 
 		if confirm {
 			envLabelHref := make(map[string]string)
@@ -184,3 +190,5 @@ func main() {
 		return
 	}
 }
+
+// Singapore - UAT change from SGP
